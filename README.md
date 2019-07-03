@@ -1,15 +1,13 @@
 # ca.civicrm.people-get
 
-![Screenshot](/images/screenshot.png)
-
-(*FIXME: In one or two paragraphs, describe what the extension does and why one would download it. *)
+This extension allows authenticated CiviCRM users to push up their google contacts into CiviCRM via the google people api.
 
 The extension is licensed under [AGPL-3.0](LICENSE.txt).
 
 ## Requirements
 
 * PHP v7.0+
-* CiviCRM (*FIXME: Version number*)
+* CiviCRM 5.x
 
 ## Installation (Web UI)
 
@@ -22,7 +20,7 @@ install it with the command-line tool [cv](https://github.com/civicrm/cv).
 
 ```bash
 cd <extension-dir>
-cv dl ca.civicrm.people-get@https://github.com/FIXME/ca.civicrm.people-get/archive/master.zip
+cv dl ca.civicrm.people-get@https://github.com/adixon/ca.civicrm.people-get/archive/master.zip
 ```
 
 ## Installation (CLI, Git)
@@ -31,14 +29,14 @@ Sysadmins and developers may clone the [Git](https://en.wikipedia.org/wiki/Git) 
 install it with the command-line tool [cv](https://github.com/civicrm/cv).
 
 ```bash
-git clone https://github.com/FIXME/ca.civicrm.people-get.git
+git clone https://github.com/adixon/ca.civicrm.people-get.git
 cv en people_get
 ```
 
 ## Usage
 
-(* FIXME: Where would a new user navigate to get started? What changes would they see? *)
+TODO
 
 ## Known Issues
 
-(* FIXME *)
+None
