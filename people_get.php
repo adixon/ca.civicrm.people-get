@@ -157,14 +157,23 @@ function people_get_civicrm_preProcess($formName, &$form) {
  *
  * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_navigationMenu
  *
+ */
 function people_get_civicrm_navigationMenu(&$menu) {
-  _people_get_civix_insert_navigation_menu($menu, 'Mailings', array(
-    'label' => E::ts('New subliminal message'),
-    'name' => 'mailing_subliminal_message',
-    'url' => 'civicrm/mailing/subliminal',
-    'permission' => 'access CiviMail',
+  _people_get_civix_insert_navigation_menu($menu, 'Contacts', array(
+    'label' => E::ts('Import Your Google Contacts'),
+    'name' => 'google_get_people',
+    'url' => 'civicrm/import/googlepeople',
+    'permission' => 'access CiviCRM',
+    'operator' => 'OR',
+    'separator' => 0,
+  ));
+  _people_get_civix_insert_navigation_menu($menu, 'Administer/System Settings', array(
+    'label' => E::ts('Configure Your Google Contact Import'),
+    'name' => 'google_get_people_auth',
+    'url' => 'civicrm/admin/setting/googlepeople',
+    'permission' => 'administer CiviCRM',
     'operator' => 'OR',
     'separator' => 0,
   ));
   _people_get_civix_navigationMenu($menu);
-} // */
+} 
