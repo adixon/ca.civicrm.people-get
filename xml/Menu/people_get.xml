@@ -6,4 +6,10 @@
     <title>GetGooglePeople</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/admin/setting/googlepeople</path>
+    <page_callback>CRM_PeopleGet_Form_GoogleAuth</page_callback>
+    <title>GoogleAuth</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>
