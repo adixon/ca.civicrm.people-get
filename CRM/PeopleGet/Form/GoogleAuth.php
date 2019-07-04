@@ -25,6 +25,13 @@ class CRM_PeopleGet_Form_GoogleAuth extends CRM_Core_Form {
       array(),
       TRUE // is required
     );
+    $this->add(
+      'text', // field type
+      'domain', // field name
+      'Domain', // field label
+      array(),
+      TRUE // is required
+    );
 
     $result = CRM_Core_BAO_Setting::getItem('Get Google People Extension', 'people_get_settings');
     $defaults = (empty($result)) ? array() : $result;
@@ -50,6 +57,7 @@ class CRM_PeopleGet_Form_GoogleAuth extends CRM_Core_Form {
         unset($values[$key]);
       }
     }
+    $values['redirect_uri'] = 'https://' . $_SERVER['HTTP_HOST'] . '/civicrm/google/oauth/';
     CRM_Core_BAO_Setting::setItem($values, 'Get Google People Extension', 'people_get_settings');
 
     parent::postProcess();
