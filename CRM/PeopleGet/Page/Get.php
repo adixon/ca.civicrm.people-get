@@ -1,11 +1,20 @@
 <?php
+/* 
+ * Add a getcontacts task to the queue and then run it!
+ *
+ */
 use CRM_PeopleGet_ExtensionUtil as E;
 
 class CRM_PeopleGet_Page_Get extends CRM_Core_Page {
 
   public function run() {
+    $token = CRM_Core_Session::singleton()->get('people_get_token');
     //retrieve the queue
     $queue = CRM_PeopleGet_Queue::singleton()->getQueue();
+    $task = new CRM_Queue_Task(array('CRM_PeopleGet_Tasks', 'GetContacts'), $token);
+    // add this task to the queue
+    $queue->createItem($task);
+    // and now run the queue.
     $runner = new CRM_Queue_Runner(array(
       'title' => ts('Google People Get runner'), //title fo the queue
       'queue' => $queue, //the queue object

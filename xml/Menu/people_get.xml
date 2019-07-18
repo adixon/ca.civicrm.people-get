@@ -3,25 +3,25 @@
   <item>
     <path>civicrm/import/googlepeople</path>
     <page_callback>CRM_PeopleGet_Page_GetGooglePeople</page_callback>
-    <title>GetGooglePeople</title>
+    <title>Import your Google Contacts</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
     <path>civicrm/admin/setting/googlepeople</path>
     <page_callback>CRM_PeopleGet_Form_GoogleAuth</page_callback>
-    <title>GoogleAuth</title>
+    <title>Google Contact Import Configuration</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
     <path>civicrm/google/oauth</path>
     <page_callback>CRM_PeopleGet_Page_Oauth</page_callback>
-    <title>Oauth</title>
+    <title>Google Oauth</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
     <path>civicrm/import/googlepeople/get</path>
     <page_callback>CRM_PeopleGet_Page_Get</page_callback>
-    <title>Get</title>
+    <title>Get Contacts</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
 </menu>

@@ -2,7 +2,7 @@
 
 require_once 'people_get.civix.php';
 use CRM_PeopleGet_ExtensionUtil as E;
-
+// opcache_reset();
 /**
  * Implements hook_civicrm_config().
  *
