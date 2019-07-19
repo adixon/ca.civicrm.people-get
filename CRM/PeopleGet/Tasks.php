@@ -20,9 +20,11 @@ class CRM_PeopleGet_Tasks {
       CRM_Core_Error::debug_var('Google Service errors',$errors);
       $connections = array();
     }
+    $cid = CRM_Core_Session::singleton()->getLoggedInContactID();
+    $loggedin = civicrm_api3('Contact', 'getsingle', ['return' => ['display_name'], 'id' => $cid ]);
     // CRM_Core_Session::setStatus('Task with token: '.$token->access_token.' is executed', 'Queue task', 'success');
     foreach($connections as $person) {
-      $contact = array();
+      $contact = [];
       foreach($person->emailAddresses as $email) {
         $type = empty($email['type']) ? 'primary' : $email['type'];
         $contact['email'][$type] = $email['value'];
@@ -32,19 +34,29 @@ class CRM_PeopleGet_Tasks {
         $contact['last_name'] =  $person->names[0]['familyName'];
       }
       if (!empty($contact)) {
-        $task = new CRM_Queue_Task(
-           array('CRM_PeopleGet_Tasks', 'ImportContact'), //call back method
-           $contact
-        );
+        $contact['source'] = 'Google Contact Import from  '.$loggedin['display_name'];
+        // CRM_Core_Error::debug_var('contact to import',$contact);
+        $task = new CRM_Queue_Task(array('CRM_PeopleGet_Tasks', 'ImportContact'), [$contact], 'Processed '.$contact['email']['primary']);
         // add this task to the queue
-	$ctx->queue->createItem($task);
+        $ctx->queue->createItem($task);
       }
     }
     return true;
   }
 
   public static function ImportContact(CRM_Queue_TaskContext $ctx, $contact) {
-    // CRM_Core_Error::debug_var('contact to import',$contact);
+    if (!empty($contact['email']['primary'])) {
+      // CRM_Core_Error::debug_var('contact to import', $contact);
+      $result = civicrm_api3('Contact', 'get', ['sequential' => 1, 'email' => $contact['email']['primary']]);
+      if ($result['count'] == 0) {
+	$contact['contact_type'] = 'Individual';
+        $contact['api.email']['email'] = $contact['email']['primary'];
+        $result = civicrm_api3('Contact', 'create', $contact);
+      }
+      else {
+        CRM_Core_Error::debug_var('Already exists',$result['values'][0]);
+      }
+    }
     return true;
   }
  
