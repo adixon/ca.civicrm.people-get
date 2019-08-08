@@ -39,7 +39,7 @@ class CRM_PeopleGet_Tasks {
       if (!empty($contact)) {
         $contact['source'] = 'Google Contact Import from  '.$loggedin['display_name'];
         foreach($person->phoneNumbers as $phone) {
-          $type = empty($phone['type']) ? 'primary' : $phone['type'];
+	  $type = empty($phone['formattedType']) ? 'Home' : $phone['formattedType'];
           $contact['phone'][$type] = $phone['value'];
         }
         foreach($person->addresses as $address) {
@@ -60,21 +60,30 @@ class CRM_PeopleGet_Tasks {
   }
 
   public static function ImportContact(CRM_Queue_TaskContext $ctx, $contact) {
-    if (!empty($contact['email']['primary'])) {
+    if (!empty($contact['email'])) {
+      $matches = 0;
+      foreach($contact['email'] as $type => $email_address) {
       // CRM_Core_Error::debug_var('contact to import', $contact);
-      $result = civicrm_api3('Contact', 'get', ['sequential' => 1, 'email' => $contact['email']['primary']]);
-      if ($result['count'] == 0) {
+        $result = civicrm_api3('Contact', 'get', ['sequential' => 1, 'email' => $email_address]);
+        $matches += $result['count'];
+      }
+      if ($matches == 0) {
         $contact['contact_type'] = 'Individual';
-        $contact['api.email']['email'] = $contact['email']['primary'];
+        // $contact['api.email']['email'] = $contact['email']['primary'];
+        $i = 0;
+        foreach($contact['email'] as $type => $email_address) {
+          $contact['api.email.create.'.$i++] = array('location_type_id' => $type, 'email' => $email_address);
+        }
         if (count($contact['phone'])) {
           $i = 0;
-          foreach($contact['phone']) as $type => $phoneNumber) {
-            $contact['api.phone.create.'.$i++] = array('location_type_id' => $type, 'phone' => $phoneNumber);
+	  foreach($contact['phone'] as $type => $phoneNumber) {
+	    $type_key = ($type == 'Mobile') ? 'phone_type_id' : 'location_type_id';
+            $contact['api.phone.create.'.$i++] = array($type_key => $type, 'phone' => $phoneNumber);
           }
         }
         if (count($contact['address'])) {
           $i = 0;
-          foreach($contact['address']) as $type => $address) {
+          foreach($contact['address'] as $type => $address) {
             $address['location_type_id'] = $type;
             $contact['api.address.create.'.$i++] = $address;
           }
@@ -82,7 +91,32 @@ class CRM_PeopleGet_Tasks {
         $result = civicrm_api3('Contact', 'create', $contact);
       }
       else {
-        CRM_Core_Error::debug_var('Already exists',$result['values'][0]);
+        $crm_contact = $result['values'][0];
+        CRM_Core_Error::debug_var('Contact already exists',$crm_contact);
+        $update_contact = ['id' => $crm_contact['contact_id']];
+        if (empty($crm_contact['first_name'])) {
+          $update_contact['first_name'] = $contact['first_name'];
+        }
+        if (empty($crm_contact['last_name'])) {
+          $update_contact['last_name'] = $contact['last_name'];
+        }
+        if (empty($crm_contact['phone_id']) && count($contact['phone'])) {
+          $i = 0;
+          foreach($contact['phone'] as $type => $phoneNumber) {
+	    $type_key = ($type == 'Mobile') ? 'phone_type_id' : 'location_type_id';
+            $update_contact['api.phone.create.'.$i++] = array($type_key => $type, 'phone' => $phoneNumber);
+          }
+        }
+        if (empty($crm_contact['address_id']) && count($contact['address'])) {
+          $i = 0;
+          foreach($contact['address'] as $type => $address) {
+            $address['location_type_id'] = $type;
+            $update_contact['api.address.create.'.$i++] = $address;
+          }
+        }
+        if (count($update_contact) > 1) {
+          $result = civicrm_api3('Contact', 'create', $update_contact);
+        }
       }
     }
     return true;
