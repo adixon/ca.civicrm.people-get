@@ -36,7 +36,9 @@ cv en people_get
 ```
 ## Setup
 
-The extension can only be used with a corresponding Google API project. The Google API project is what allows CiviCRM to talk to google in an authenticated way via it's people api.
+The code relies on some google libraries which can be installed with composer. This should be automated, but for now you'll have to run composer update before the extension is used.
+
+Also, the extension can only be used with a corresponding Google API project. The Google API project is what allows CiviCRM to talk to google in an authenticated way via it's people api.
 
 You will need to create a [new Google People api project as documented here](https://developers.google.com/people/v1/getting-started).
 
@@ -46,7 +48,13 @@ You do need to:
 3. Create a [new project](https://console.developers.google.com/apis/dashboard). Call your project "CiviCRM Get Contacts Web Client".
 4. [Setup authorization](https://developers.google.com/people/v1/how-tos/authorizing?authuser=4) for that project.
 
-You don't need to worry about code, that's what this extension provides.
+The authorization setup is tricky. Assuming your CiviCRM install is hosted at https://crm.example.org, here are some notes:
+1. You need to setup a OAuth client ID
+2. In the OAuth consent screen, you want to pick Application type = Internal, add a the ../auth/contacts.readonly scope, add https://crm.example.org to "Authorized domains". The other fields are up to you.
+3. You want to add https://crm.example.org to the Domain verification list.
+4. For the client configuration, you need to add your CiviCRM site domain to the Authorized JavaScript origins, and put https://crm.example.org/civicrm/google/oauth in your Authorized redirect URIs.
+
+You don't need to worry about the code or code examples, that's what this extension provides.
 
 After you have setup your project and configured authorization for it, then you can grab the Client ID and Client Secret and put it in the configuration for this extension, in the Administration -> System Settings -> Configure your Google Contact Import.
 
