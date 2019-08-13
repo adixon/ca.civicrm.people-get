@@ -30,7 +30,10 @@ class CRM_PeopleGet_Page_GetGooglePeople extends CRM_Core_Page {
         $people_service = new Google_Service_PeopleService($myclient->client);
         try {
           $connections = $people_service->people_connections->listPeopleConnections(
-            'people/me', array('personFields' => 'names,emailAddresses'));
+            'people/me', array(
+              'personFields' => 'names,emailAddresses',
+              'pageSize' => '2000'
+          ));
           // CRM_Core_Error::debug_var('connections',$connections);
         }
         catch (Google_Service_Exception $e) { 
@@ -52,7 +55,7 @@ class CRM_PeopleGet_Page_GetGooglePeople extends CRM_Core_Page {
           if (!empty($contact)) {
             $contacts[] = $contact; 
           }
-	}
+        }
         // CRM_Core_Error::debug_var('contacts',$contacts);
         $this->assign('contacts', $contacts);
       }
