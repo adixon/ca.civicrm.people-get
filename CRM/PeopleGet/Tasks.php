@@ -3,6 +3,18 @@
 class CRM_PeopleGet_Tasks {
  
   public static function GetContacts(CRM_Queue_TaskContext $ctx, $token) {
+    static $location_types = array();
+    if (empty($location_types)) {
+      $result = civicrm_api3('LocationType', 'get', ['sequential' => 1]);
+      if ($result['count']) {
+        foreach($result['values'] as $location_type) {
+		$location_types[$location_type['name']] = $location_type;
+		if ($location_type['is_default'])
+          $default_location_type = $location_type['name'];
+        }
+      }
+    }
+    $location_types['Mobile'] = 'Hackerama';
     // CRM_Core_Error::debug_var('token',$token);
     $myclient = new CRM_PeopleGet_GoogleClient();
     // CRM_Core_Error::debug_var('myclient',$myclient);
@@ -29,7 +41,7 @@ class CRM_PeopleGet_Tasks {
     foreach($connections as $person) {
       $contact = [];
       foreach($person->emailAddresses as $email) {
-        $type = empty($email['type']) ? 'primary' : $email['type'];
+        $type = empty($email['type']) || empty($location_types[$email['type']]) ? $default_location_type : $email['type'];
         $contact['email'][$type] = $email['value'];
       }
       if (!empty($person->names[0])) {
@@ -39,11 +51,11 @@ class CRM_PeopleGet_Tasks {
       if (!empty($contact)) {
         $contact['source'] = 'Google Contact Import from  '.$loggedin['display_name'];
         foreach($person->phoneNumbers as $phone) {
-	  $type = empty($phone['formattedType']) ? 'Home' : $phone['formattedType'];
+          $type = empty($phone['formattedType']) || empty($location_types[$phone['formattedType']]) ? $default_location_type : $phone['formattedType'];
           $contact['phone'][$type] = $phone['value'];
         }
         foreach($person->addresses as $address) {
-          $type = empty($address['type']) ? 'primary' : $address['type'];
+          $type = empty($address['type']) || empty($location_types[$address['type']]) ? $default_location_type : $address['type'];
           $contact['address'][$type]['street_address'] = $address['streetAddress'];
           $contact['address'][$type]['city'] = $address['city'];
           $contact['address'][$type]['state_province'] = $address['region'];
@@ -76,8 +88,8 @@ class CRM_PeopleGet_Tasks {
         }
         if (count($contact['phone'])) {
           $i = 0;
-	  foreach($contact['phone'] as $type => $phoneNumber) {
-	    $type_key = ($type == 'Mobile') ? 'phone_type_id' : 'location_type_id';
+          foreach($contact['phone'] as $type => $phoneNumber) {
+            $type_key = ($type == 'Mobile') ? 'phone_type_id' : 'location_type_id';
             $contact['api.phone.create.'.$i++] = array($type_key => $type, 'phone' => $phoneNumber);
           }
         }
@@ -103,7 +115,7 @@ class CRM_PeopleGet_Tasks {
         if (empty($crm_contact['phone_id']) && count($contact['phone'])) {
           $i = 0;
           foreach($contact['phone'] as $type => $phoneNumber) {
-	    $type_key = ($type == 'Mobile') ? 'phone_type_id' : 'location_type_id';
+            $type_key = ($type == 'Mobile') ? 'phone_type_id' : 'location_type_id';
             $update_contact['api.phone.create.'.$i++] = array($type_key => $type, 'phone' => $phoneNumber);
           }
         }
